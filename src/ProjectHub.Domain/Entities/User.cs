@@ -16,8 +16,8 @@ public class User : BaseEntity
 
     // Se guarda el hash en texto plano
     public string PasswordHash { get; set; } = string.Empty;
-
-    public SystemRole Role { get; set; } = SystemRole.Developer;
+    public Guid RoleId { get; set; }
+    public Role Role { get; set; } = null!;
     public bool IsActive { get; set; } = true;
 
     // Relación Multi-Tenant (FK)
