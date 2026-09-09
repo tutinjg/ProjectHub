@@ -1,13 +1,16 @@
+using ProjectHub.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de servicios
+// Inyectar infraestructura
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configuración del pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -15,9 +18,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
