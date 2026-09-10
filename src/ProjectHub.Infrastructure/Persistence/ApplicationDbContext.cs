@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ProjectHub.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     private readonly ITenantService _tenantService;
     private readonly ICurrentUserService _currentUserService;

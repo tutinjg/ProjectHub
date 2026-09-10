@@ -25,6 +25,9 @@ public static class DependencyInjection
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+        services.AddScoped<IApplicationDbContext>(provider =>
+        provider.GetRequiredService<ApplicationDbContext>());
+
         return services;
     }
 }
