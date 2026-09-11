@@ -26,13 +26,15 @@ public class User : BaseEntity
 
     // Constructor vacío para EF
     protected User() { }
-
-    public User(string firstName, string lastName, string email, Guid companyId)
+    public User(string firstName, string lastName, string email, string passwordHash, Guid companyId, Guid roleId)
     {
         FirstName = firstName;
         LastName = lastName;
         Email = email;
+        PasswordHash = passwordHash;
         CompanyId = companyId;
+        RoleId = roleId;
+        IsActive = true;
     }
 
     // Comportamientos de Dominio (Rich Domain Model)
