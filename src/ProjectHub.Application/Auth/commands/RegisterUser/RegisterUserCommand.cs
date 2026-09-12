@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ProjectHub.Application.Auth.Common;
@@ -58,16 +53,20 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, A
 {
     private readonly IApplicationDbContext _context;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-    public RegisterUserCommandHandler(IApplicationDbContext context, IPasswordHasher passwordHasher)
+    public RegisterUserCommandHandler(
+        IApplicationDbContext context,
+        IPasswordHasher passwordHasher,
+        IJwtTokenGenerator jwtTokenGenerator)
     {
         _context = context;
         _passwordHasher = passwordHasher;
+        _jwtTokenGenerator = jwtTokenGenerator;
     }
 
     public async Task<AuthResponseDto> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
-        // 1. Verificar si el correo ya existe dentro del sistema
         var emailNormalized = request.Email.Trim().ToLowerInvariant();
         var emailExists = await _context.Users
             .AnyAsync(u => u.Email.ToLower() == emailNormalized, cancellationToken);
@@ -80,33 +79,37 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, A
             });
         }
 
-        // 2. Validar existencia de Company
         var company = await _context.Companies
-            .IgnoreQueryFilters()
             .FirstOrDefaultAsync(c => c.Id == request.CompanyId, cancellationToken);
 
         if (company == null)
             throw new NotFoundException(nameof(Company), request.CompanyId);
 
-        // 3. Validar existencia del Rol para esa compañía
         var role = await _context.Roles
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(r => r.Id == request.RoleId && r.CompanyId == request.CompanyId, cancellationToken);
+            .FirstOrDefaultAsync(r => r.Id == request.RoleId, cancellationToken);
 
         if (role == null)
             throw new NotFoundException(nameof(Role), request.RoleId);
 
-        // 4. Crear nuevo usuario con hash
-        var user = new User(
-            request.FirstName.Trim(),
-            request.LastName.Trim(),
-            emailNormalized,
-            _passwordHasher.HashPassword(request.Password),
-            request.CompanyId,
-            request.RoleId
-        );
+            var user = new User(
+                request.FirstName.Trim(),
+                request.LastName.Trim(),
+                emailNormalized,
+                _passwordHasher.HashPassword(request.Password),
+                request.CompanyId,
+                request.RoleId
+            );
 
         _context.Users.Add(user);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        // Asignar el rol al objeto para la emisión del token
+        user.Role = role;
+
+        var accessToken = _jwtTokenGenerator.GenerateAccessToken(user);
+        var refreshToken = _jwtTokenGenerator.GenerateRefreshToken(user.Id);
+
+        _context.RefreshTokens.Add(refreshToken);
         await _context.SaveChangesAsync(cancellationToken);
 
         return new AuthResponseDto(
@@ -114,7 +117,9 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, A
             $"{user.FirstName} {user.LastName}",
             user.Email,
             role.Name,
-            user.CompanyId
+            user.CompanyId,
+            accessToken,
+            refreshToken.Token
         );
     }
 }

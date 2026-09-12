@@ -3,13 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ProjectHub.Application.Common.Interfaces;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace ProjectHub.Infrastructure.Services;
 
 public class CurrentUserService : ICurrentUserService
 {
-    // Mock temporal para pruebas locales
-    public string? UserId => "system-admin";
-    public string? Email => "admin@projecthub.local";
-    public bool IsAuthenticated => true;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public CurrentUserService(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    public string? Email => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Email);
+
+    public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
 }

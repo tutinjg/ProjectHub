@@ -11,5 +11,7 @@ public record AuthResponseDto(
     string FullName,
     string Email,
     string RoleName,
-    Guid CompanyId
+    Guid CompanyId,
+    string AccessToken,
+    string RefreshToken
 );
