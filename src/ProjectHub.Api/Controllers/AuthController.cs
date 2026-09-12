@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ProjectHub.Application.Auth.Commands.Login;
+using ProjectHub.Application.Auth.Commands.RefreshToken;
 using ProjectHub.Application.Auth.Commands.RegisterUser;
 using ProjectHub.Application.Auth.Common;
 
@@ -30,6 +31,15 @@ public class AuthController : ControllerBase
     [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginCommand command)
+    {
+        var response = await _sender.Send(command);
+        return Ok(response);
+    }
+
+    [HttpPost("refresh-token")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenCommand command)
     {
         var response = await _sender.Send(command);
         return Ok(response);

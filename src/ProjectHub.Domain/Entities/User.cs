@@ -8,7 +8,7 @@ using ProjectHub.Domain.Enums;
 
 namespace ProjectHub.Domain.Entities;
 
-public class User : BaseEntity
+public class User : BaseEntity, IMustHaveTenant
 {
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
@@ -36,6 +36,10 @@ public class User : BaseEntity
         RoleId = roleId;
         IsActive = true;
     }
+
+    // Refresh tokens para la sesion activa
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
 
     // Comportamientos de Dominio (Rich Domain Model)
     public string GetFullName() => $"{FirstName} {LastName}";
