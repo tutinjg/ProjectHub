@@ -1,10 +1,11 @@
-﻿import { Component, signal } from '@angular/core';
+﻿import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../core/Services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -23,9 +24,14 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './main-layout.scss'
 })
 export class MainLayout {
+  authService = inject(AuthService);
   isSidebarOpen = signal(true);
 
   toggleSidebar() {
     this.isSidebarOpen.update(state => !state);
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }
