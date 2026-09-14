@@ -1,18 +1,10 @@
-.sidenav-container {
-  height: calc(100vh - 64px);
+.spacer {
+  flex: 1 1 auto;
 }
 
-.app-sidenav {
-  width: 240px;
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.main-content {
-  padding: 24px;
-  background-color: #f8fafc;
-}
-
-.active-link {
-  background-color: rgba(63, 81, 181, 0.08);
-  font-weight: 600;
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
 }

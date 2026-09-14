@@ -1,0 +1,39 @@
+@use '../login/login.scss' as auth;
+
+.auth-container {
+  @extend .auth-container;
+}
+
+.auth-card {
+  @extend .auth-card;
+  max-width: 520px;
+}
+
+.full-width {
+  @extend .full-width;
+}
+
+.submit-button {
+  @extend .submit-button;
+}
+
+.error-banner {
+  @extend .error-banner;
+}
+
+.auth-footer {
+  @extend .auth-footer;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.mt-12 {
+  margin-top: 12px;
+}

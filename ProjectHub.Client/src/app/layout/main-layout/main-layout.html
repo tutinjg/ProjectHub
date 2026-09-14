@@ -2,7 +2,20 @@
   <button mat-icon-button (click)="toggleSidebar()">
     <mat-icon>menu</mat-icon>
   </button>
-  <span class="app-title">ProjectHub SaaS</span>
+  <span class="app-title">ProjectHub</span>
+
+  <span class="spacer"></span>
+
+  @if (authService.currentUser(); as user) {
+    <div class="user-info">
+      <span class="user-name">{{ user.fullName }} ({{ user.roleName }})</span>
+      <button mat-icon-button (click)="logout()" title="Cerrar Sesión">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  } @else {
+    <a mat-button routerLink="/auth/login">Iniciar Sesión</a>
+  }
 </mat-toolbar>
 
 <mat-sidenav-container class="sidenav-container">

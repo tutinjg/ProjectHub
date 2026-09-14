@@ -12,6 +12,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularClient", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
+
 // Autenticación JWT
 var jwtKey = builder.Configuration["JwtSettings:Secret"]!;
 builder.Services.AddAuthentication(options =>
@@ -86,7 +99,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowClientApp");
+app.UseRouting();
+
+app.UseCors("AllowAngularClient");
 
 app.UseAuthentication();
 app.UseAuthorization();
