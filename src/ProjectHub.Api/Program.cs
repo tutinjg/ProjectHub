@@ -1,10 +1,11 @@
-using ProjectHub.Api.Middlewares;
-using ProjectHub.Application;
-using ProjectHub.Infrastructure;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ProjectHub.Api.Middlewares;
+using ProjectHub.Application;
+using ProjectHub.Infrastructure;
+using ProjectHub.Infrastructure.Persistence;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -107,5 +108,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Ejecución de Migraciones y Seeding automático
+using (var scope = app.Services.CreateScope())
+{
+    var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+    await initializer.InitializeAsync();
+    await initializer.SeedAsync();
+}
 
 app.Run();
