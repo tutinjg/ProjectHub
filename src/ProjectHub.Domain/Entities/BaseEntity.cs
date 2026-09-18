@@ -6,19 +6,15 @@ using System.Threading.Tasks;
 
 namespace ProjectHub.Domain.Common;
 
-public abstract class BaseEntity : IAuditableEntity, ISoftDelete
+public abstract class BaseEntity : IAuditableEntity
 {
-    // PK universal para todas las entidades
     public Guid Id { get; set; } = Guid.NewGuid();
+    public bool IsDeleted { get; set; } = false;
+    public DateTime? DeletedAt { get; set; }
 
-    // Implementación de IAuditableEntity
-    public DateTime CreatedAt { get; set; }
+    // Auditoría
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? CreatedBy { get; set; }
     public DateTime? LastModifiedAt { get; set; }
     public string? LastModifiedBy { get; set; }
-
-    // Implementación de ISoftDelete
-    public bool IsDeleted { get; set; }
-    public DateTime? DeletedAt { get; set; }
-    public string? DeletedBy { get; set; }
 }

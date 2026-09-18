@@ -3,6 +3,7 @@ using ProjectHub.Application.Common.Interfaces;
 using ProjectHub.Domain.Common;
 using ProjectHub.Domain.Entities;
 using ProjectHub.Infrastructure.Persistence.Extensions;
+using ProjectHub.Infrastructure.Persistence.Interceptors;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,14 +18,24 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     private readonly ITenantService _tenantService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly AuditableEntityInterceptor _auditableInterceptor;
 
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,
         ITenantService tenantService,
-        ICurrentUserService currentUserService) : base(options)
+        ICurrentUserService currentUserService,
+        AuditableEntityInterceptor auditableInterceptor)
+        : base(options)
     {
         _tenantService = tenantService;
         _currentUserService = currentUserService;
+        _auditableInterceptor = auditableInterceptor;
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.AddInterceptors(_auditableInterceptor);
+        base.OnConfiguring(optionsBuilder);
     }
 
     public DbSet<Company> Companies => Set<Company>();
@@ -32,9 +43,22 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<TaskItem> Tasks => Set<TaskItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Refresh token
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasOne(rt => rt.User)
+                  .WithMany(u => u.RefreshTokens)
+                  .HasForeignKey(rt => rt.UserId)
+                  .IsRequired(false) // Elimina la advertencia 10622
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
 
         // Aplica todas las configuraciones IEntityTypeConfiguration del ensamblado
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
@@ -46,11 +70,40 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             .HasForeignKey(u => u.RoleId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // 1. Filtro global para Soft Delete
+        // Filtro global para Soft Delete
         modelBuilder.ApplyGlobalFilters<ISoftDelete>(e => !e.IsDeleted);
 
-        // 2. Filtro global multi-tenant usando CompanyId
+        // Filtro global multi-tenant usando CompanyId
         modelBuilder.ApplyGlobalFilters<IMustHaveTenant>(e => e.CompanyId == _tenantService.CompanyId);
+
+
+        // Relacion de proyecto
+        modelBuilder.Entity<Project>(entity =>
+        {
+            entity.Property(p => p.Name).IsRequired().HasMaxLength(150);
+            entity.Property(p => p.Description).HasMaxLength(1000);
+
+            entity.HasOne(p => p.Company)
+                  .WithMany()
+                  .HasForeignKey(p => p.CompanyId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Relacion de tarea
+        modelBuilder.Entity<TaskItem>(entity =>
+        {
+            entity.Property(t => t.Title).IsRequired().HasMaxLength(200);
+
+            entity.HasOne(t => t.Project)
+                  .WithMany(p => p.Tasks)
+                  .HasForeignKey(t => t.ProjectId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(t => t.AssignedToUser)
+                  .WithMany()
+                  .HasForeignKey(t => t.AssignedToUserId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
