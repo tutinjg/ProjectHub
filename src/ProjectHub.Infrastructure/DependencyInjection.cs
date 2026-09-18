@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectHub.Application.Common.Interfaces;
 using ProjectHub.Infrastructure.Persistence;
+using ProjectHub.Infrastructure.Persistence.Interceptors;
 using ProjectHub.Infrastructure.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ProjectHub.Infrastructure;
 
@@ -34,6 +35,8 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         services.AddScoped<ApplicationDbContextInitializer>();
+
+        services.AddScoped<AuditableEntityInterceptor>();
 
         return services;
     }
