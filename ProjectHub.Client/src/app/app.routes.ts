@@ -14,6 +14,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard').then(m => m.Dashboard)
       },
       {
+        path: 'projects',
+        loadChildren: () => import('./features/projects/projects.routes').then(m => m.PROJECTS_ROUTES)
+      },
+      {
         path: 'companies',
         loadComponent: () => import('./features/companies/companies').then(m => m.Companies)
       }
@@ -24,5 +28,5 @@ export const routes: Routes = [
     canActivate: [publicGuard],
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
-  { path: '**', redirectTo: 'dashboard' }
+  { path: '**', redirectTo: 'projects' }
 ];

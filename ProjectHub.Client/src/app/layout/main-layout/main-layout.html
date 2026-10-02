@@ -2,7 +2,7 @@
   <button mat-icon-button (click)="toggleSidebar()">
     <mat-icon>menu</mat-icon>
   </button>
-  <span class="app-title">ProjectHub</span>
+  <span class="app-title">ProjectHub SaaS</span>
 
   <span class="spacer"></span>
 
@@ -25,6 +25,10 @@
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <span matListItemTitle>Dashboard</span>
       </a>
+      <a mat-list-item routerLink="/projects" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>folder</mat-icon>
+        <span matListItemTitle>Proyectos</span>
+      </a>
       <a mat-list-item routerLink="/companies" routerLinkActive="active-link">
         <mat-icon matListItemIcon>business</mat-icon>
         <span matListItemTitle>Empresas</span>
@@ -33,6 +37,7 @@
   </mat-sidenav>
 
   <mat-sidenav-content class="main-content">
+    <!-- Este elemento es obligatorio para renderizar las vistas hijas -->
     <router-outlet></router-outlet>
   </mat-sidenav-content>
 </mat-sidenav-container>

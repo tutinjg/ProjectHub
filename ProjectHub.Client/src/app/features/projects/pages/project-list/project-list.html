@@ -1,0 +1,98 @@
+<div class="projects-container">
+  <div class="header-actions">
+    <div>
+      <h1 class="page-title">Proyectos</h1>
+      <p class="page-subtitle">Gestiona y supervisa los proyectos de tu organización</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Nuevo Proyecto
+    </button>
+  </div>
+
+  <div class="filter-bar">
+    <mat-form-field appearance="outline" class="search-input">
+      <mat-label>Buscar proyecto...</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Stripe, Migración, Frontend" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  @if (projectService.isLoading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <div class="table-card mat-elevation-z2">
+    <table mat-table [dataSource]="dataSource" matSort class="full-width-table">
+      <!-- Nombre -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Proyecto </th>
+        <td mat-cell *matCellDef="let row">
+          <div class="project-info">
+            <span class="project-name">{{ row.name }}</span>
+            @if (row.description) {
+              <span class="project-desc">{{ row.description }}</span>
+            }
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Estado -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
+        <td mat-cell *matCellDef="let row">
+          <span class="status-badge" [ngClass]="getStatusClass(row.status)">
+            {{ getStatusLabel(row.status) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Tareas -->
+      <ng-container matColumnDef="taskCount">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Tareas </th>
+        <td mat-cell *matCellDef="let row">
+          <div class="task-counter">
+            <mat-icon class="icon-small">task_alt</mat-icon>
+            <span>{{ row.taskCount }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Fecha Inicio -->
+      <ng-container matColumnDef="startDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Inicio </th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.startDate ? (row.startDate | date:'mediumDate') : '-' }}
+        </td>
+      </ng-container>
+
+      <!-- Fecha Fin -->
+      <ng-container matColumnDef="targetEndDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Entrega </th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.targetEndDate ? (row.targetEndDate | date:'mediumDate') : '-' }}
+        </td>
+      </ng-container>
+
+      <!-- Acciones -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-stroked-button color="accent" (click)="goToBoard(row)">
+            <mat-icon>view_kanban</mat-icon>
+            Tablero
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="project-row"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell empty-state" [attr.colspan]="displayedColumns.length">
+          No se encontraron proyectos registrados.
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
