@@ -1,0 +1,30 @@
+.project-form {
+  display: flex;
+  flex-direction: column;
+  min-width: 440px;
+  padding-top: 8px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.dialog-error {
+  background-color: #fef2f2;
+  border-left: 4px solid #ef4444;
+  color: #b91c1c;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+  border-radius: 4px;
+}
